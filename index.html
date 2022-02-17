@@ -6,13 +6,22 @@
         [v-cloak] {
             display: none;
         }
+
+        input {
+            margin: 10px;
+        }
     </style>
 </head>
 
 <body>
-    <div id="app" v-cloak>
-        {{greeting}}
+    <div>
+        <custom-form />
+    </div>
+    <div>
         <input @keyup.enter="greet(greeting)" v-model="greeting" />
+
+
+
 
         <div v-if="isVisible">
             now you see me
@@ -20,7 +29,10 @@
         <div v-if="!isVisible">
             now you don't
         </div>
+        <test-box v-if="isVisible"></test-box>
         <button @click="toggleView">Click</button>
+    </div>
+
     </div>
 
 
@@ -43,10 +55,99 @@
             greet(greeting) {
                 console.log("test greeting enter var --> ", greeting)
             }
+        },
+        updated() {
+            console.log('updated')
         }
 
 
     })
+
+    app.component('test-box', {
+        template: `
+        <div class="box"></div>
+        `,
+        created() {
+            console.log('created')
+        },
+        mounted() {
+            console.log('mounted')
+        },
+        unmounted() {
+            console.log('unmounted')
+        }
+    })
+
+    //due parametri
+    //il primo è il nome
+    //il secondo options object
+    app.component('custom-form', {
+        template: `
+        <form @submit.prevent="handleSubmit">  <!-- .prevent è per non fare ricaricare la pagina al click del bottone-->
+            <h1>{{title}}</h1>
+            <custom-input 
+            v-for="(input, i) in inputs"
+            :key="i"
+            :label="input.label"  
+            :type="input.type"
+            v-model="input.value"/> <br/><!--v-bind:label o più semplicemente :label è utilizzato per prendere l'etichetta dal componente sotto-->
+            <button type="submit">Log in</button>
+        </form>
+        `,
+        components: ['custom-input'],
+        data() {
+            return {
+                title: 'Login form',
+                email: '',
+                password: '',
+                emailLabel: 'Email',
+                passwordLabel: 'Password',
+                inputs: [{
+                        label: 'Email',
+                        value: '',
+                        type: 'email'
+                    },
+                    {
+                        label: 'Password',
+                        value: '',
+                        type: 'password'
+                    },
+                ]
+            }
+        },
+        methods: {
+            handleSubmit() {
+                console.log('form submitted\nemail: ' + this.inputs[0].value + '\npassword: ' + this.inputs[1].value)
+            }
+        }
+    })
+
+    app.component('custom-input', {
+        template: `
+            <label>
+                {{label}}
+                <input :type="type" v-model="inputValue"> <!--v-model è l'equivalente del ngModel-->
+            </label>
+        `,
+        props: ['label', 'type', 'modelValue'], //modelValue serve per ricevere valori dal parent
+        computed: {
+            inputValue: { //input value è un nome custom definito nel v-model del figlio
+                get() {
+                    return this.modelValue
+                },
+                set(value) {
+                    this.$emit('update:modelValue', value) //emitta gli eventi che altri component possono ascoltare. v-model del parent sta ascoltando questo emit
+                }
+            }
+        },
+
+        // data(){
+        //     return{
+        //         inputValue: ''
+        //     }
+        // }
+    })
+
     app.mount('#app')
 </script>
 

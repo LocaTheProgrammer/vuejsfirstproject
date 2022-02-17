@@ -1,0 +1,53 @@
+<html>
+
+<head>
+    <title>Vue app test</title>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        {{greeting}}
+        <input @keyup.enter="greet(greeting)" v-model="greeting" />
+
+        <div v-if="isVisible">
+            now you see me
+        </div>
+        <div v-if="!isVisible">
+            now you don't
+        </div>
+        <button @click="toggleView">Click</button>
+    </div>
+
+
+
+</body>
+
+<script src="https://unpkg.com/vue@next"></script>
+<script>
+    let app = Vue.createApp({
+        data: function() {
+            return {
+                greeting: 'Hello test',
+                isVisible: false
+            }
+        },
+        methods: {
+            toggleView() {
+                this.isVisible = !this.isVisible
+            },
+            greet(greeting) {
+                console.log("test greeting enter var --> ", greeting)
+            }
+        }
+
+
+    })
+    app.mount('#app')
+</script>
+
+</html>
